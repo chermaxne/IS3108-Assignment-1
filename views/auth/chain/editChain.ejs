@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineVillage — Edit Chain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0a0a0f;
+      --gold: #c9a84c;
+      --gold-light: #e8c87a;
+      --cream: #f5f0e8;
+      --muted: #6b6b7a;
+      --surface: #13131a;
+      --border: rgba(201,168,76,0.15);
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --yellow: #f1c40f;
+    }
+
+    body { min-height: 100vh; background: var(--ink); font-family: 'DM Sans', sans-serif; color: var(--cream); display: flex; }
+
+    .sidebar { width: 240px; min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; color: var(--gold); }
+    .brand-sub { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 3px; }
+
+    .nav { flex: 1; padding: 20px 12px; }
+    .nav-section { font-size: 0.65rem; font-weight: 600; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; padding: 0 12px; margin-bottom: 8px; margin-top: 20px; }
+    .nav-section:first-child { margin-top: 0; }
+    .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 4px; color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: all 0.15s; margin-bottom: 2px; }
+    .nav a:hover { background: rgba(201,168,76,0.08); color: var(--cream); }
+    .nav a.active { background: rgba(201,168,76,0.12); color: var(--gold); font-weight: 500; }
+    .nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 4px; background: none; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+    .logout-btn:hover { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+    .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--cream); }
+    .breadcrumb { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .content { padding: 32px; flex: 1; }
+
+    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .form-card-header { padding: 20px 28px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+    .form-card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--cream); }
+    .form-card-body { padding: 28px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 0.73rem; font-weight: 600; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .field input, .field select, .field textarea {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px; padding: 10px 13px; color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+    .field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.2); }
+    .field select option { background: #1c1c27; }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .alert { padding: 10px 16px; border-radius: 3px; font-size: 0.85rem; margin-bottom: 20px; border-left: 3px solid; }
+    .alert-error { background: rgba(231,76,60,0.1); border-color: var(--red); color: #f1948a; }
+    .alert-warning { background: rgba(241,196,15,0.1); border-color: var(--yellow); color: #f9e784; }
+
+    .form-actions { display: flex; align-items: center; gap: 12px; padding: 20px 28px; border-top: 1px solid var(--border); }
+    .btn-primary { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; background: var(--gold); border: none; border-radius: 3px; color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 0.83rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-secondary { display: inline-flex; align-items: center; padding: 10px 18px; border: 1px solid var(--border); border-radius: 3px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.83rem; text-decoration: none; transition: all 0.15s; }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    .divider { height: 1px; background: var(--border); grid-column: 1 / -1; }
+    .section-label { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--gold); font-weight: 700; grid-column: 1 / -1; margin-top: 4px; }
+
+    .info-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(201,168,76,0.08); border: 1px solid var(--border); border-radius: 3px; font-size: 0.8rem; color: var(--gold); margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">CineVillage</div>
+    <div class="brand-sub">Admin Portal</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <a href="/admin/dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <div class="nav-section">Management</div>
+    <a href="/admin/chains" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7v10c0 1.1.9 2 2 2h4v-6h8v6h4c1.1 0 2-.9 2-2V7l-10-4L2 7z"/><path d="M10 19v-6h4v6"/></svg>Chains</a>
+    <a href="/admin/halls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Halls</a>
+    <a href="/admin/movies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Movies</a>
+    <a href="/admin/screenings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Screenings</a>
+    <% if (user && user.role === 'admin') { %>
+    <a href="/admin/staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Staff Management</a>
+    <% } %>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/logout" class="logout-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">Edit Chain</div>
+    <div class="breadcrumb">
+      <a href="/admin/chains">Chains</a>
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span><%= chain.name %></span>
+    </div>
+  </div>
+
+  <div class="content">
+    <% if (error && error.length > 0) { %>
+      <div class="alert alert-error"><%= error[0] %></div>
+    <% } %>
+
+    <div class="info-badge">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <%= hallCount %> hall(s) assigned to this chain
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="form-card-title">Edit — <%= chain.name %></div>
+      </div>
+      <form method="POST" action="/admin/chains/<%= chain._id %>/update">
+        <div class="form-card-body">
+          <div class="form-grid">
+
+            <div class="section-label">Identity</div>
+
+            <div class="field full">
+              <label for="name">Chain Name <span style="color:var(--red)">*</span></label>
+              <input type="text" id="name" name="name" required value="<%= chain.name %>"/>
+            </div>
+
+            <div class="field full">
+              <label for="location">Location / Address <span style="color:var(--red)">*</span></label>
+              <input type="text" id="location" name="location" required value="<%= chain.location %>"/>
+            </div>
+
+            <div class="field">
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="Active" <%= chain.status === 'Active' ? 'selected' : '' %>>Active</option>
+                <option value="Coming Soon" <%= chain.status === 'Coming Soon' ? 'selected' : '' %>>Coming Soon</option>
+                <option value="Closed" <%= chain.status === 'Closed' ? 'selected' : '' %>>Closed</option>
+              </select>
+            </div>
+
+            <div class="field"></div>
+
+            <div class="divider"></div>
+            <div class="section-label">Contact Information</div>
+
+            <div class="field">
+              <label for="contactNumber">Contact Number</label>
+              <input type="text" id="contactNumber" name="contactNumber" value="<%= chain.contactNumber || '' %>"/>
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value="<%= chain.email || '' %>"/>
+            </div>
+
+            <div class="divider"></div>
+            <div class="section-label">Additional Info</div>
+
+            <div class="field full">
+              <label for="description">Description</label>
+              <textarea id="description" name="description"><%= chain.description || '' %></textarea>
+            </div>
+
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Changes
+          </button>
+          <a href="/admin/chains" class="btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineVillage — Staff Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0a0a0f;
+      --gold: #c9a84c;
+      --gold-light: #e8c87a;
+      --cream: #f5f0e8;
+      --muted: #6b6b7a;
+      --red: #c0392b;
+      --surface: #13131a;
+      --border: rgba(201,168,76,0.2);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Film strip background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        repeating-linear-gradient(90deg,
+          transparent 0px, transparent 38px,
+          rgba(201,168,76,0.03) 38px, rgba(201,168,76,0.03) 40px
+        ),
+        repeating-linear-gradient(0deg,
+          transparent 0px, transparent 58px,
+          rgba(201,168,76,0.03) 58px, rgba(201,168,76,0.03) 60px
+        );
+      pointer-events: none;
+    }
+
+    /* Spotlight glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(201,168,76,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .brand-logo svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    .brand-tagline {
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 40px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 6px;
+    }
+
+    .card-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .error-banner {
+      background: rgba(192,57,43,0.12);
+      border: 1px solid rgba(192,57,43,0.4);
+      border-left: 3px solid var(--red);
+      padding: 10px 14px;
+      border-radius: 2px;
+      color: #e57373;
+      font-size: 0.83rem;
+      margin-bottom: 24px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      padding: 12px 14px;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      transition: border-color 0.2s, background 0.2s;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.04);
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--gold);
+      border: none;
+      border-radius: 2px;
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover { background: var(--gold-light); }
+    .btn-login:active { transform: scale(0.99); }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .footer-note span {
+      color: rgba(201,168,76,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="brand">
+    <div class="brand-logo">
+      <!-- Film reel icon -->
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="16" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="18" cy="18" r="6" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="18" cy="7" r="2.5" fill="#c9a84c"/>
+        <circle cx="18" cy="29" r="2.5" fill="#c9a84c"/>
+        <circle cx="7" cy="18" r="2.5" fill="#c9a84c"/>
+        <circle cx="29" cy="18" r="2.5" fill="#c9a84c"/>
+        <circle cx="10.5" cy="10.5" r="2.5" fill="#c9a84c"/>
+        <circle cx="25.5" cy="25.5" r="2.5" fill="#c9a84c"/>
+        <circle cx="25.5" cy="10.5" r="2.5" fill="#c9a84c"/>
+        <circle cx="10.5" cy="25.5" r="2.5" fill="#c9a84c"/>
+      </svg>
+      <span class="brand-name">CineVillage</span>
+    </div>
+    <div class="brand-tagline">Internal Staff Portal</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Staff Sign In</div>
+    <div class="card-sub">Access restricted to authorised personnel only.</div>
+
+    <% const errMsg = (typeof error === 'string') ? error : (error && error.length > 0 ? error[0] : null); %>
+    <% if (errMsg) { %>
+      <div class="error-banner"><%= errMsg %></div>
+    <% } %>
+
+    <form method="POST" action="/login">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required/>
+      </div>
+      <button type="submit" class="btn-login">Sign In</button>
+    </form>
+  </div>
+
+  <div class="footer-note">
+    <span>©</span> <%= new Date().getFullYear() %> CineVillage Management Systems
+  </div>
+</div>
+
+</body>
+</html>
