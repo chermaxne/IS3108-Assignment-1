@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineVillage — Hall Layout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0a0a0f;
+      --gold: #c9a84c;
+      --gold-light: #e8c87a;
+      --cream: #f5f0e8;
+      --muted: #6b6b7a;
+      --surface: #13131a;
+      --surface2: #1c1c27;
+      --border: rgba(201,168,76,0.15);
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --yellow: #f1c40f;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--cream);
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .nav { flex: 1; padding: 20px 12px; }
+
+    .nav-section {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0 12px;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    .nav-section:first-child { margin-top: 0; }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 4px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .nav a:hover { background: rgba(201,168,76,0.08); color: var(--cream); }
+    .nav a.active { background: rgba(201,168,76,0.12); color: var(--gold); font-weight: 500; }
+    .nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 4px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .logout-btn:hover { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--cream);
+    }
+
+    .breadcrumb {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+
+    .content { padding: 32px; flex: 1; }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 10px 16px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      border-left: 3px solid;
+    }
+
+    .alert-success {
+      background: rgba(46,204,113,0.1);
+      border-color: var(--green);
+      color: #7deba0;
+    }
+
+    .alert-error {
+      background: rgba(231,76,60,0.1);
+      border-color: var(--red);
+      color: #f1948a;
+    }
+
+    /* ── Hall Info Bar ── */
+    .hall-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .info-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      font-size: 0.9rem;
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    .info-value.gold { color: var(--gold); font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.1rem; }
+
+    .info-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+
+    .pill-active { background: rgba(46,204,113,0.12); color: var(--green); }
+    .pill-maint { background: rgba(241,196,15,0.12); color: #f1c40f; }
+    .pill-closed { background: rgba(107,107,122,0.15); color: var(--muted); }
+
+    /* ── Toolbar ── */
+    .layout-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left { display: flex; gap: 10px; align-items: center; }
+    .toolbar-right { display: flex; gap: 10px; align-items: center; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      background: var(--gold);
+      border: none;
+      border-radius: 3px;
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover { background: var(--gold-light); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-secondary.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.08); }
+
+    .btn-outline-danger {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border: 1px solid rgba(231,76,60,0.3);
+      border-radius: 3px;
+      background: none;
+      color: var(--red);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-outline-danger:hover { background: rgba(231,76,60,0.1); }
+
+    /* ── Edit Toolbar ── */
+    .edit-toolbar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+    }
+
+    .edit-toolbar.visible { display: flex; }
+
+    .brush-label {
+      font-size: 0.73rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .brush-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      background: none;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .brush-btn:hover { border-color: rgba(255,255,255,0.3); }
+
+    .brush-btn.active {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.1);
+      color: var(--gold);
+    }
+
+    .brush-dot {
+      width: 12px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .brush-dot.std { background: #4dd0e1; }
+    .brush-dot.blk { background: #ab47bc; }
+    .brush-dot.wc  { background: #ffa726; }
+    .brush-dot.emp { background: transparent; border: 1px dashed rgba(255,255,255,0.3); }
+
+    /* ── Layout Container ── */
+    .layout-container {
+      background: #050508;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 40px 32px 32px;
+      overflow-x: auto;
+    }
+
+    /* ── Screen ── */
+    .screen-wrapper {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .screen-bar {
+      width: 85%;
+      height: 5px;
+      background: linear-gradient(90deg, transparent 0%, #e67e22 15%, #f39c12 50%, #e67e22 85%, transparent 100%);
+      margin: 0 auto 10px;
+      border-radius: 3px;
+    }
+
+    .screen-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #aaa;
+      letter-spacing: 0.15em;
+    }
+
+    /* ── Seat Grid ── */
+    .seat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .seat-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .row-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #888;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .seats {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .seat-gap {
+      width: 12px;
+      flex-shrink: 0;
+    }
+
+    /* ── Seats ── */
+    .seat {
+      width: 34px;
+      height: 28px;
+      border-radius: 6px 6px 3px 3px;
+      cursor: default;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      user-select: none;
+      position: relative;
+    }
+
+    .seat-standard {
+      background: #4dd0e1;
+      border: 1px solid #26c6da;
+    }
+
+    .seat-blocked {
+      background: #ab47bc;
+      border: 1px solid #9c27b0;
+    }
+
+    .seat-wheelchair {
+      background: #ffa726;
+      border: 1px solid #fb8c00;
+    }
+
+    .seat-wheelchair::after {
+      content: '♿';
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .seat-empty {
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.12);
+    }
+
+    /* Edit mode seat hover */
+    .seat.editable { cursor: pointer; }
+    .seat.editable:hover { transform: scale(1.15); box-shadow: 0 0 8px rgba(201,168,76,0.4); z-index: 2; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    .legend-seat {
+      width: 24px;
+      height: 18px;
+      border-radius: 4px 4px 2px 2px;
+    }
+
+    .legend-seat.l-standard {
+      background: #4dd0e1;
+      border: 1px solid #26c6da;
+    }
+
+    .legend-seat.l-blocked {
+      background: #ab47bc;
+      border: 1px solid #9c27b0;
+    }
+
+    .legend-seat.l-wheelchair {
+      background: #ffa726;
+      border: 1px solid #fb8c00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .legend-seat.l-empty {
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.2);
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .stat-val.cyan { color: #4dd0e1; }
+    .stat-val.purple { color: #ab47bc; }
+    .stat-val.orange { color: #ffa726; }
+    .stat-val.gold { color: var(--gold); }
+
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Back Link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<%
+  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  function getRowLabel(i) {
+    if (i < 26) return ALPHA[i];
+    return 'A' + ALPHA[i - 26];
+  }
+
+  // Compute seat stats
+  let stdCount = 0, blkCount = 0, wcCount = 0, empCount = 0;
+  hall.seatLayout.forEach(function(row) {
+    row.forEach(function(s) {
+      if (s === 'standard') stdCount++;
+      else if (s === 'blocked') blkCount++;
+      else if (s === 'wheelchair') wcCount++;
+      else if (s === 'empty') empCount++;
+    });
+  });
+  const usableSeats = stdCount + wcCount;
+%>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">CineVillage</div>
+    <div class="brand-sub">Admin Portal</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <a href="/admin/dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="nav-section">Management</div>
+    <a href="/admin/chains">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7v10c0 1.1.9 2 2 2h4v-6h8v6h4c1.1 0 2-.9 2-2V7l-10-4L2 7z"/><path d="M10 19v-6h4v6"/></svg>
+      Chains
+    </a>
+    <a href="/admin/halls" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Halls
+    </a>
+    <a href="/admin/movies">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+      Movies
+    </a>
+    <a href="/admin/screenings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      Screenings
+    </a>
+    <a href="/admin/bookings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 17v-2a4 4 0 00-8 0v2"/><circle cx="12" cy="11" r="2"/></svg>
+      Bookings
+    </a>
+    <% if (user && user.role === 'admin') { %>
+    <a href="/admin/staff">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Staff Management
+    </a>
+    <% } %>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/logout" class="logout-btn">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title">Hall Layout</div>
+    <div class="breadcrumb">
+      <a href="/admin/halls">Halls</a>
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span><%= hall.name %></span>
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span>Layout</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <% if (typeof success !== 'undefined' && success && success.length > 0) { %>
+      <div class="alert alert-success"><%= success[0] %></div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+      <div class="alert alert-error"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Hall Info Bar -->
+    <div class="hall-info">
+      <div class="info-item">
+        <span class="info-label">Hall</span>
+        <span class="info-value" style="color:var(--gold); font-weight:600;"><%= hall.name %></span>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-item">
+        <span class="info-label">Chain</span>
+        <span class="info-value"><%= hall.chain ? hall.chain.name : '—' %></span>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-item">
+        <span class="info-label">Type</span>
+        <span class="info-value"><%= hall.hallType || 'Standard' %></span>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-item">
+        <span class="info-label">Dimensions</span>
+        <span class="info-value"><%= hall.rows %> rows × <%= hall.columns %> seats</span>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-item">
+        <span class="info-label">Status</span>
+        <span class="info-value">
+          <% if (hall.status === 'Under Maintenance') { %>
+            <span class="pill pill-maint">Maintenance</span>
+          <% } else if (hall.status === 'Closed') { %>
+            <span class="pill pill-closed">Closed</span>
+          <% } else { %>
+            <span class="pill pill-active">Active</span>
+          <% } %>
+        </span>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="layout-toolbar">
+      <div class="toolbar-left">
+        <a href="/admin/halls" class="back-link">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to Halls
+        </a>
+      </div>
+      <div class="toolbar-right">
+        <button type="button" class="btn-secondary" id="editBtn" onclick="toggleEditMode()">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Layout
+        </button>
+        <button type="button" class="btn-primary" id="saveBtn" style="display:none;" onclick="saveLayout()">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Edit Brush Toolbar -->
+    <div class="edit-toolbar" id="editToolbar">
+      <span class="brush-label">Brush:</span>
+      <button type="button" class="brush-btn active" data-brush="standard" onclick="selectBrush('standard')">
+        <span class="brush-dot std"></span> Available
+      </button>
+      <button type="button" class="brush-btn" data-brush="blocked" onclick="selectBrush('blocked')">
+        <span class="brush-dot blk"></span> Blocked
+      </button>
+      <button type="button" class="brush-btn" data-brush="wheelchair" onclick="selectBrush('wheelchair')">
+        <span class="brush-dot wc"></span> Wheelchair
+      </button>
+      <button type="button" class="brush-btn" data-brush="empty" onclick="selectBrush('empty')">
+        <span class="brush-dot emp"></span> Empty
+      </button>
+    </div>
+
+    <!-- Seating Layout -->
+    <div class="layout-container">
+      <div class="screen-wrapper">
+        <div class="screen-bar"></div>
+        <div class="screen-label">Screen</div>
+      </div>
+
+      <div class="seat-grid" id="seatGrid">
+        <% for (let r = 0; r < hall.seatLayout.length; r++) { %>
+          <div class="seat-row">
+            <div class="row-label"><%= getRowLabel(r) %></div>
+            <div class="seats">
+              <% for (let c = 0; c < hall.seatLayout[r].length; c++) { %>
+                <% if (hall.hasGap && c > 0 && c % 2 === 0) { %>
+                  <div class="seat-gap"></div>
+                <% } %>
+                <div class="seat seat-<%= hall.seatLayout[r][c] %>"
+                     data-row="<%= r %>" data-col="<%= c %>"
+                     title="<%= getRowLabel(r) %><%= c + 1 %>"
+                     onclick="handleSeatClick(this)">
+                  <% if (hall.seatLayout[r][c] === 'wheelchair') { %>
+                  <% } %>
+                </div>
+              <% } %>
+            </div>
+            <div class="row-label"><%= getRowLabel(r) %></div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-seat l-standard"></div>
+          <span>Available</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-seat l-blocked"></div>
+          <span>Blocked</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-seat l-wheelchair">♿</div>
+          <span>Wheelchair Berth</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-seat l-empty"></div>
+          <span>Empty</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-val gold" id="totalCount"><%= usableSeats %></div>
+          <div class="stat-label">Usable Seats</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val cyan" id="stdCount"><%= stdCount %></div>
+          <div class="stat-label">Standard</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val orange" id="wcCount"><%= wcCount %></div>
+          <div class="stat-label">Wheelchair</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val purple" id="blkCount"><%= blkCount %></div>
+          <div class="stat-label">Blocked</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Hidden form for saving layout -->
+<form id="layoutForm" method="POST" action="/admin/halls/<%= hall._id %>/layout" style="display:none;">
+  <input type="hidden" name="seatLayout" id="seatLayoutInput"/>
+</form>
+
+<script>
+  let editMode = false;
+  let currentBrush = 'standard';
+  let layoutData = <%- JSON.stringify(hall.seatLayout) %>;
+
+  function toggleEditMode() {
+    editMode = !editMode;
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const toolbar = document.getElementById('editToolbar');
+
+    if (editMode) {
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancel';
+      editBtn.classList.add('active');
+      saveBtn.style.display = 'inline-flex';
+      toolbar.classList.add('visible');
+    } else {
+      editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Layout';
+      editBtn.classList.remove('active');
+      saveBtn.style.display = 'none';
+      toolbar.classList.remove('visible');
+      // Reload to discard unsaved changes
+      location.reload();
+    }
+
+    document.querySelectorAll('.seat').forEach(function(s) {
+      if (editMode) {
+        s.classList.add('editable');
+      } else {
+        s.classList.remove('editable');
+      }
+    });
+  }
+
+  function selectBrush(type) {
+    currentBrush = type;
+    document.querySelectorAll('.brush-btn').forEach(function(b) {
+      b.classList.remove('active');
+    });
+    document.querySelector('[data-brush="' + type + '"]').classList.add('active');
+  }
+
+  function handleSeatClick(el) {
+    if (!editMode) return;
+    const row = parseInt(el.dataset.row);
+    const col = parseInt(el.dataset.col);
+
+    // Update data
+    layoutData[row][col] = currentBrush;
+
+    // Update visual
+    el.className = 'seat seat-' + currentBrush + ' editable';
+
+    updateStats();
+  }
+
+  function updateStats() {
+    let std = 0, blk = 0, wc = 0;
+    layoutData.forEach(function(row) {
+      row.forEach(function(seat) {
+        if (seat === 'standard') std++;
+        else if (seat === 'blocked') blk++;
+        else if (seat === 'wheelchair') wc++;
+      });
+    });
+    document.getElementById('totalCount').textContent = std + wc;
+    document.getElementById('stdCount').textContent = std;
+    document.getElementById('wcCount').textContent = wc;
+    document.getElementById('blkCount').textContent = blk;
+  }
+
+  function saveLayout() {
+    document.getElementById('seatLayoutInput').value = JSON.stringify(layoutData);
+    document.getElementById('layoutForm').submit();
+  }
+</script>
+
+</body>
+</html>
